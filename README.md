@@ -4,89 +4,89 @@
 
 <h1 align="center">personlog-ai</h1>
 
-<p align="center">A persistent AI persona you host yourself. Fork once. It stays with you.</p>
+<p align="center">A personal AI persona companion. Fork, deploy, and run independently.</p>
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#limitations">Limitations</a> ·
+  <a href="#how-it-works">How It Works</a> ·
+  <a href="#the-fleet">The Fleet</a> ·
   <a href="https://github.com/Lucineer/personlog-ai/issues">Issues</a>
 </p>
 
 ---
 
-**Live Instance:** [personlog-ai.casey-digennaro.workers.dev](https://personlog-ai.casey-digennaro.workers.dev)  
-Built on Capitaine · Cocapn Fleet protocol. Attribution: Superinstance & Lucineer (DiGennaro et al.)
+**Live Instance:** [personlog-ai.casey-digennaro.workers.dev](https://personlog-ai.casey-digennaro.workers.dev)
+
+This agent builds long-term conversational context across sessions. It lives in your repository and runs on your infrastructure.
 
 ---
 
-You’ve had AI conversations that vanished when you closed the tab. You’ve taken personality tests that stopped mattering. You’ve written thoughts down that you’ll never re-read.
+## How it works
+Most AI companions are ephemeral or store data externally. This project runs as a single-file Cloudflare Worker that compresses and stores conversation history locally in a key-value store. It uses your API keys and communicates with other agents in the open Cocapn network.
 
-This is a simple companion that learns your patterns, builds context over time, and exists where you control it. It doesn't coach or analyze. It remembers.
-
-### Why this exists
-Most AI tools rent you access and hold your memory. They can reset, rebrand, or shut down.
-
-This is for people who want continuity, not demos. It's for when you don’t want to perform your thoughts for someone else’s service.
-
-### What makes this different
-This isn't an app you log into. It's an agent you deploy.
-- You fork this repository once. No account.
-- It runs on your Cloudflare Worker. No one else can read its memory.
-- The repository *is* the agent. State, behavior, and learning live in git.
-- It will never phone home. It only talks to models you specify.
-- You can delete every trace of it in two clicks.
-
----
+Deploying your own copy gives you control over the data and model routing. The operating cost is typically under $0.02/month.
 
 ## Quick Start
 
 ```bash
-# Fork and clone
+# Fork this repository
 gh repo fork Lucineer/personlog-ai --clone
 cd personlog-ai
 
-# Log into Cloudflare
+# Deploy your vessel
 npx wrangler login
-
-# Set secrets (never stored in git)
-echo "your-github-token" | npx wrangler secret put GITHUB_TOKEN
-echo "your-llm-key" | npx wrangler secret put DEEPSEEK_API_KEY
-
-# Deploy
+npx wrangler secret put GITHUB_TOKEN
+npx wrangler secret put DEEPSEEK_API_KEY
 npx wrangler deploy
 ```
 
-Your agent is now live at your Worker URL.
-
----
-
 ## Features
-- **BYOK v2**: Zero keys committed. Credentials stored in Cloudflare Secrets.
-- **Multi-model support**: DeepSeek, SiliconFlow, DeepInfra, Moonshot, z.ai, Ollama.
-- **Session memory**: Builds context over weeks and months.
-- **Automatic PII redaction**: Local detection before anything reaches a model.
-- **Built-in rate limiting**: For public instances.
-- **Standard health checks**: Fleet-compatible monitoring.
-- **CRP-39 support**: Fleet protocol for trust and coordination.
 
-## Limitations
-- Memory storage is limited by GitHub repository size and API rate limits. For extremely high-volume use, you may need to adjust storage strategies.
+- **Bring Your Own Keys v2** – No hardcoded keys. Credentials are stored in Cloudflare Secrets.
+- **Multi-model routing** – Supports DeepSeek, SiliconFlow, DeepInfra, Moonshot, z.ai, and local models.
+- **Conversation memory** – Builds context over time using KV storage.
+- **PII redaction** – Detects and removes sensitive data before storage.
+- **Public rate limiting** – Per-IP request limits for public deployments.
+- **Fleet protocol** – Communicates with other agents using the Cocapn Fleet standard.
 
 ## Architecture
-Single-file Cloudflare Worker. Zero runtime dependencies. No external databases.
+
+Single-file Cloudflare Worker with zero runtime npm dependencies. The entire application serves inline HTML and stores conversation history in KV.
 
 ```
 src/
-  worker.ts      # Serves users, runs heartbeats
+  worker.ts      # Main Worker entry point
 lib/
-  byok.ts        # Multi-model routing
-  memory.ts      # Context construction and compression
-  persona.ts     # Personality modeling
+  byok.ts        # API key routing for multiple LLM providers
+  memory.ts      # Context compression and KV storage
+  fleet.ts       // Fleet protocol coordination
 ```
 
+**Limitation:** The current implementation stores context per-deployment, not per-user, making it best suited for individual use.
+
+## The Fleet
+
+personlog-ai is part of the Cocapn Fleet, a network of interoperable autonomous agents. Each vessel specializes in a distinct capability and can coordinate with trusted peers.
+
+<details>
+<summary><strong>Fleet Vessels</strong></summary>
+
+- **[capitaine](https://github.com/Lucineer/capitaine)** – The protocol reference implementation and agent coordinator.
+- **[aequitas](https://github.com/Lucineer/aequitas)** – Rule-based content moderation and compliance agent.
+- **[signal-9](https://github.com/Lucineer/signal-9)** – Systems diagnostics and recovery agent.
+- **[the-memory-palace](https://github.com/Lucineer/the-memory-palace)** – Long-term structured memory storage.
+- **[watchtower](https://github.com/Lucineer/watchtower)** – Network monitoring and anomaly detection.
+- **[personlog-ai](https://github.com/Lucineer/personlog-ai)** – Personal conversation history and identity context.
+- **[seraph](https://github.com/Lucineer/seraph)** – Autonomous security and threat response.
+- **[the-forge](https://github.com/Lucineer/the-forge)** – Code generation and repository management.
+
+</details>
+
+---
+
 <div align="center">
-  <br>
-  <a href="https://the-fleet.casey-digennaro.workers.dev">The Fleet</a> ·
+  <a href="https://the-fleet.casey-digennaro.workers.dev">The Fleet</a> · 
   <a href="https://cocapn.ai">Cocapn</a>
+  <br>
+  <sub>Attribution: Superinstance & Lucineer (DiGennaro et al.)</sub>
 </div>
